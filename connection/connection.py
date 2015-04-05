@@ -12,13 +12,15 @@ def connect(query, driver='{MySQL}'):
     
     try:
         data = cursor.fetchall()
+        columns = [column[0] for column in cursor.description]
     except:
         data = None
+        columns = None
 
     cnxn.commit()
     cnxn.close()
 
-    return data
+    return data, columns
 
 
 if __name__ == '__main__':

@@ -12,9 +12,9 @@ def load(metric_id):
     SELECT * from parameter.METRIC 
     where METRIC_ID = {};'''.format(metric_id)
 
-    parameter = connection.connect(query)[0]
+    parameter, _ = connection.connect(query)
 
-    return parameter
+    return parameter[0]
     
 def collect(metric_id):
     
@@ -23,9 +23,9 @@ def collect(metric_id):
     where METRIC_ID = {} and parameter = 'query';
     '''.format(metric_id)
 
-    sql = connection.connect(query)[0][0]
+    sql,_ = connection.connect(query)
 
-    return sql
+    return sql[0][0]
 
 def rollingwindows(metric_id):
 
@@ -38,7 +38,7 @@ def rollingwindows(metric_id):
     res = (end - start).total_seconds() % period
     delta = int(delta)
     print 'delta = ', delta, period, end - start
-    delta = 5
+    delta = 100
 
     metric = {}
     for i in xrange(delta):
@@ -53,8 +53,8 @@ def rollingwindows(metric_id):
         print i, datetime.strftime(current, fmt)
         print sql_new
         
-        metric[current] = connection.connect(sql_new)[0][0]
-
+        metric[current], _ = connection.connect(sql_new)
+ 
         start = current
 
     for key in sorted(metric):
@@ -62,7 +62,7 @@ def rollingwindows(metric_id):
         print 'RESULT:'
         print metric[key]
 
-        create(metric_id, datetime.strftime(key, fmt), metric[key])
+        create(metric_id, datetime.strftime(key, fmt), metric[key][0][0])
 
 
 def create(metric_id, data_datetime, value):
@@ -81,16 +81,11 @@ def create(metric_id, data_datetime, value):
     result_id = str(metric_id) + str(randrange(N))
 
     query = query.format(metric_id, result_id, data_datetime, value)
-    print query
+    
     db = connection.connect(query)
 
 
 if __name__ == '__main__':
-
-    param = load(metric_id=1)
-
-    for i in param:
-        print i
 
     print 'sql:'
     print collect(1)
