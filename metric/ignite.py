@@ -32,28 +32,30 @@ def execute():
     for pls in pending_list:
         metric_id = pls[0]
         print metric_id
-        collect.rollingwindows(metric_id, delta=1)
+        
+        if collect.rollingwindows(metric_id, delta=1):
+            # reset status
+            query = '''
+            UPDATE parameter.METRIC set STATUS = 'READY'
+            WHERE METRIC_ID = {}
+            '''.format(metric_id)
+           
+            connection.connect(query)
 
-        # reset to 'READY'
-        query = '''
-        UPDATE parameter.METRIC set STATUS = 'READY'
-        WHERE METRIC_ID = {}
-                '''.format(metric_id)
-        connection.connect(query)
-    
-    # If everything looks fine, change METRIC status to 'DEPLOYED'
+    # If everything wroks fine, change METRIC status to 'DEPLOYED'
     print 'DEPLOYING:'
     for dls in deployed_list:
         metric_id = dls[0]
         print metric_id
-        collect.rollingwindows(metric_id, delta=-1)
-
-        # reset to 'DEPLOYED'
-        query = '''
-        UPDATE parameter.METRIC set STATUS = 'DEPLOYED'
-        WHERE METRIC_ID = {}
-                '''.format(metric_id)
-        connection.connect(query)
+        
+        if collect.rollingwindows(metric_id, delta=-1):
+            # reset status
+            query = '''
+            UPDATE parameter.METRIC set STATUS = 'DEPLOYED'
+            WHERE METRIC_ID = {}
+            '''.format(metric_id)
+            
+            connection.connect(query)
 
 def run(worker, interval = 10):
 
