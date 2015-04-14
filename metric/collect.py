@@ -3,13 +3,13 @@ from random import randrange
 
 from ..connection import connection
 
-N = 1000000
 
+N = 1000000
 
 def load(metric_id):
     
     query = '''
-    SELECT * from parameter.METRIC 
+    SELECT STARTDATE, ENDDATE, PERIOD_IN_SECOND from parameter.METRIC 
     where METRIC_ID = {};'''.format(metric_id)
 
     parameter, _ = connection.connect(query)
@@ -27,18 +27,20 @@ def collect(metric_id):
 
     return sql[0][0]
 
-def rollingwindows(metric_id):
+def rollingwindows(metric_id, delta=100):
 
     fmt = '%Y-%m-%d %H:%M:%S'
     
-    _, _, _, start, end, period  = load(metric_id)
+    start, end, period  = load(metric_id)
     sql = collect(metric_id)
 
-    delta = (end - start).total_seconds() / period
-    res = (end - start).total_seconds() % period
-    delta = int(delta)
-    print 'delta = ', delta, period, end - start
-    delta = 100
+    if delta == -1:
+        delta = (end - start).total_seconds() / period
+        res = (end - start).total_seconds() % period
+        delta = int(delta)
+        
+    print 'TIME delta = ', delta, period, end - start
+
 
     metric = {}
     for i in xrange(delta):
@@ -82,12 +84,20 @@ def create(metric_id, data_datetime, value):
 
     query = query.format(metric_id, result_id, data_datetime, value)
     
-    db = connection.connect(query)
+    try:
+        db = connection.connect(query)
+    
+    except Exception, err:
+        
+        print 'METRIC_ID = ', metric_id
+        print 'DATA_DATETIME = ', data_datetime
+        print 'ERROR MESSAGE = ', err
 
 
 if __name__ == '__main__':
 
+    print load(1)
     print 'sql:'
     print collect(1)
 
-    rollingwindows(1)
+    #rollingwindows(1)
