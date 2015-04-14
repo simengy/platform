@@ -1,10 +1,13 @@
 import os
 import pandas as pd
+import pandas.rpy.common as com
 import numpy as np
 import rpy2.robjects as robjects
+
 from rpy2.robjects.packages import importr
 
 import monitor
+import threshold
 
 PLOT_DIR = 'plot'
 
@@ -16,7 +19,7 @@ def temporal(metric_name):
     
     print metric1
 
-    # test data size
+    # assign the size of test data
     size = 10
     train = metric1[:-size]
     test = metric1[-size:]
@@ -54,10 +57,16 @@ def temporal(metric_name):
     r.plot(pred, xlim=r.range(start,end), xlab='Days', ylab='Donation Amount')
     r.lines(x=r.seq(start,end), y=test, col='red', type='b', lwd=2)
     grdevices.dev_off()
+
+    # Threshold and alerting
+    pred = list(pred)
+    threshold.threshold(com.convert_robj(pred[3]).as_matrix(),
+            com.convert_robj(pred[4])['80%'].as_matrix(),
+            com.convert_robj(pred[5])['80%'].as_matrix(),
+            com.convert_robj(test),
+            ci_level = '80%',
+            metric_name = metric_name)
     
-    #print fit
-
-
 
 if __name__ == '__main__':
 

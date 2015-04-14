@@ -7,11 +7,12 @@ from email.mime.text import MIMEText
 
 class alert(object):
 
-    def __init__(self, from_addr, to_addr,  message):
+    def __init__(self, from_addr, to_addr, pwd, message):
        
         self.from_addr = from_addr
         self.to_addr = to_addr
-        
+        self.pwd = pwd
+
         self.msg = MIMEMultipart('alternative')
         self.msg['Subject'] = 'Link'
         self.msg['From'] = from_addr
@@ -31,7 +32,8 @@ class alert(object):
                 sent from,<br>
                 <br>
                 Constraint Alerting System<br>
-                
+                <br>
+                <a href='http://10.20.102.190/machinelearning.html'>Data Science Team</a>
                 </p>
             </body>
         </html>
@@ -48,11 +50,8 @@ class alert(object):
 
         mail.ehlo()
         mail.starttls()
-
-        usr = raw_input('Username [%s]: ' % getpass.getuser())
-        pwd = getpass.getpass()
-
-        mail.login(usr, pwd)
+        
+        mail.login(self.from_addr, self.pwd)
         mail.sendmail(self.from_addr, self.to_addr, self.msg.as_string())
         mail.quit()
 
@@ -60,17 +59,17 @@ class alert(object):
 if __name__ == '__main__':
     
     message = '''
-To whom it may concern,<br>
+To whom it may concern,
 
-We are testing the alerting system.<br>
-
-You can refer to:
-
-<a href='http://10.20.102.190/machinelearning.html'>link</a>
+We are testing the alerting system. This is supposed to be the alerting email received in production.
     '''
+   
+    receiver = raw_input('Receiver\' Username [%s]: ' % getpass.getuser())
+    sender = raw_input('\nSender\'s Username [%s]: ' % getpass.getuser())
+    print ('Enter password for Username %s' % sender)
+    pwd = getpass.getpass()
 
-
-    trigger = alert('simengy@uci.edu', 'simeng.yan@saama.com', message)
+    trigger = alert(sender, receiver, pwd, message)
     
     try:
         trigger.alerting()
