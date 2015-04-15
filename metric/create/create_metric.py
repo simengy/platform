@@ -76,18 +76,17 @@ class creation:
 
 if __name__ == '__main__':
 
-    METRIC_ID = 4
-    METRIC_NAME = 'age of customer'
-    METRIC_DESCRIPTION = 'test only'
-    STARTDATE = '2011-03-05'
-    ENDDATE = '2012-04-05'
-    PERIOD = '144000'
+    METRIC_ID = 3
+    METRIC_NAME = 'age of passenger'
+    METRIC_DESCRIPTION = 'test for categorical features'
+    STARTDATE = '2011'
+    ENDDATE = '2012'
+    PERIOD = '86400'
 
     parameters = ['datatype', 'query']
-    values = ['int', '''SELECT COUNT(*)
-    FROM test.DONATION
-    WHERE donation_timestamp >= :STARTDATE
-    AND donation_timestamp < :ENDDATE
+    values = ['map', '''SELECT Sex, AVG(Age)
+    FROM test.TITANIC
+    group by 1
             ''']
 
     cr = creation(METRIC_ID)

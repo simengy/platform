@@ -33,7 +33,6 @@ class periodicTask(object):
 def print_hw():
 
     print 'hello world!'
-
     return 1
 
 # test case: parameterized

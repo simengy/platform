@@ -2,7 +2,8 @@ from datetime import datetime, timedelta
 from random import randrange
 
 from ..connection import connection
-
+import datatype
+import parser
 
 N = 1000000
 
@@ -38,15 +39,50 @@ def collect(metric_id):
         
         return None
 
-def rollingwindows(metric_id, delta=100):
+def find_dtype(metric_id):
 
-    fmt = '%Y-%m-%d %H:%M:%S'
+    query = '''
+    SELECT value from
+    parameter.METRIC_CONFIG
+    where METRIC_ID = {}
+    and parameter = 'datatype'
+    '''.format(metric_id)
+
+    try:
+        dtype, _ = connection.connect(query)
+        return dtype[0][0]
+
+    except Exception, err:
+        print err
+        error_log = '''
+        UPDATE parameter.METRIC
+        set STATUS = 'ERROR: {}'
+        WHERE METRIC_ID = {}
+        '''.format(err, metric_id)
+        connection.connect(error_log)
+        
+        return None
     
+# TODO: datatype -- 
+def rollingwindows(metric_id, delta=100):
+    
+    fmt = '%Y-%m-%d %H:%M:%S'
+
     start, end, period  = load(metric_id)
     sql = collect(metric_id)
+
     if sql is None:
         return False
-
+    
+    if start is None or period is None:
+        delta = 1
+        start = datetime.now()
+        end = datetime.now()
+        period = 0
+    else:
+        if end is None:
+            end = datetime.now()
+ 
     if delta == -1:
         delta = (end - start).total_seconds() / period
         res = (end - start).total_seconds() % period
@@ -86,10 +122,16 @@ def rollingwindows(metric_id, delta=100):
 
     for key in sorted(metric):
 
-        print 'RESULT:'
-        print metric[key]
+        dtype = find_dtype(metric_id)
+        print 'RESULT:\n', metric[key], dtype
+        
+        if dtype is None:
+            return False
+        
+        for v in metric[key]:
 
-        create(metric_id, datetime.strftime(key, fmt), metric[key][0][0])
+            value = datatype.parser[dtype]().cast(v)
+            create(metric_id, datetime.strftime(key, fmt), value)
 
     return True
 
@@ -103,7 +145,7 @@ def create(metric_id, data_datetime, value):
     )
     values
     (
-        {}, {}, '{}', {}
+        {}, {}, '{}', '{}'
     );
     '''
     
@@ -123,8 +165,9 @@ def create(metric_id, data_datetime, value):
 
 if __name__ == '__main__':
 
-    print load(1)
+    metric_id = 3
+    print load(metric_id)
     print 'sql:'
-    print collect(1)
+    print collect(metric_id)
 
-    #rollingwindows(1)
+    rollingwindows(metric_id)
