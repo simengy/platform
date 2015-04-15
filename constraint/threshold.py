@@ -1,7 +1,8 @@
 import alert
 import getpass
 
-def threshold(pred, ci_low, ci_high, test, metric_name, ci_level='95%'):
+
+def threshold(pred, ci_low, ci_high, test, metric_name, image, ci_level='95%'):
     
     try:
         if len(pred) == len(test):
@@ -11,8 +12,8 @@ def threshold(pred, ci_low, ci_high, test, metric_name, ci_level='95%'):
         return 
     
     receiver = raw_input('Reciever\' Username [%s]' % getpass.getuser())
-    sender = raw_input('Sender\' Username [%s]' % getpass.getuser())
-    print ('\nEnter password for Username %s' % sender)
+    sender = raw_input('\nSender\' Username [%s]' % getpass.getuser())
+    print ('Enter password for Username %s' % sender)
     pwd = getpass.getpass()
 
     message = '''
@@ -38,7 +39,7 @@ def threshold(pred, ci_low, ci_high, test, metric_name, ci_level='95%'):
             
             '''.format(p, test[p], ci_level, ci_low[p], ci_high[p])
 
-    trigger = alert.alert(sender, receiver, pwd, message)
+    trigger = alert.alert(sender, receiver, pwd, message, image)
             
     try:
         trigger.alerting()

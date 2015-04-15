@@ -65,10 +65,12 @@ def temporal(metric_name):
             com.convert_robj(pred[5])['80%'].as_matrix(),
             com.convert_robj(test),
             ci_level = '80%',
-            metric_name = metric_name)
+            metric_name = metric_name,
+            image = '{}/{}/test.jpg'.format(PLOT_DIR, metric_name))
     
 
 if __name__ == '__main__':
 
     temporal(metric_name = 'donation')
     temporal(metric_name = 'donation_dup')
+    temporal(metric_name = 'donation_project')

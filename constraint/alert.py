@@ -1,13 +1,14 @@
 import smtplib
 import getpass
 
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+from email.MIMEMultipart import MIMEMultipart
+from email.MIMEText import MIMEText
+from email.MIMEImage import MIMEImage
 
 
 class alert(object):
 
-    def __init__(self, from_addr, to_addr, pwd, message):
+    def __init__(self, from_addr, to_addr, pwd, message, image):
        
         self.from_addr = from_addr
         self.to_addr = to_addr
@@ -28,7 +29,10 @@ class alert(object):
                 <p>
                 {}
                 
+                <br>
+                <img src="cid:image1"'>
                 <br><br>
+                
                 sent from,<br>
                 <br>
                 Constraint Alerting System<br>
@@ -40,7 +44,12 @@ class alert(object):
         '''.format(message)
         
         part = MIMEText(html, 'html')
-
+        self.msg.attach(part)
+        
+        fp = open(image, 'rb')
+        part = MIMEImage(fp.read())
+        fp.close()
+        part.add_header('Content-ID', '<image1>')
         self.msg.attach(part)
 
 
@@ -74,6 +83,6 @@ We are testing the alerting system. This is supposed to be the alerting email re
     try:
         trigger.alerting()
     except Exception, err:
-        # Probably Password or User name error
+        # Probably Password or Username error
         print err
 
