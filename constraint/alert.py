@@ -8,7 +8,7 @@ from email.MIMEImage import MIMEImage
 
 class alert(object):
 
-    def __init__(self, from_addr, to_addr, pwd, message, image):
+    def __init__(self, from_addr, to_addr, pwd, message, image=None):
        
         self.from_addr = from_addr
         self.to_addr = to_addr
@@ -45,15 +45,18 @@ class alert(object):
         
         part = MIMEText(html, 'html')
         self.msg.attach(part)
-        
-        fp = open(image, 'rb')
-        part = MIMEImage(fp.read())
-        fp.close()
-        part.add_header('Content-ID', '<image1>')
-        self.msg.attach(part)
+       
+        try:
+            fp = open(image, 'rb')
+            part = MIMEImage(fp.read())
+            fp.close()
+            part.add_header('Content-ID', '<image1>')
+            self.msg.attach(part)
+        except:
+            print 'No Image attached'
 
 
-    def alerting(self):
+    def mailing(self):
         
         mail = smtplib.SMTP('smtp.gmail.com', 587)
 
@@ -81,7 +84,7 @@ We are testing the alerting system. This is supposed to be the alerting email re
     trigger = alert(sender, receiver, pwd, message)
     
     try:
-        trigger.alerting()
+        trigger.mailing()
     except Exception, err:
         # Probably Password or Username error
         print err

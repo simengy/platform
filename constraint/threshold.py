@@ -2,12 +2,11 @@ import alert
 import getpass
 
 
-def threshold(pred, ci_low, ci_high, test, metric_name, image, ci_level='95%'):
+def threshold(ci_low, ci_high, test, metric_name, image, ci_level='95%'):
     
-    try:
-        if len(pred) == len(test):
-            N = len(pred)
-    except:
+    if len(ci_low) == len(ci_high) == len(test):
+        N = len(test)
+    else:
         print 'PREDICTION and TEST are size-different!'
         return 
     
@@ -42,7 +41,7 @@ def threshold(pred, ci_low, ci_high, test, metric_name, image, ci_level='95%'):
     trigger = alert.alert(sender, receiver, pwd, message, image)
             
     try:
-        trigger.alerting()
+        trigger.mailing()
     except Exception, err:
         print err
             
