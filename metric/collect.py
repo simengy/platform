@@ -3,7 +3,7 @@ from random import randrange
 
 from ..connection import connection
 import datatype
-import parser
+import metadata
 
 N = 1000000
 
@@ -107,13 +107,14 @@ def rollingwindows(metric_id, delta=100):
         try:
             metric[current], _ = connection.connect(sql_new)
         except Exception, err:
-            err[1].replace('\'', '\'\'' )
+            
+            message = err[1].replace('\'', '\'\'' )
             
             error_log = '''
             UPDATE parameter.METRIC
             set STATUS = 'ERROR: {}'
             WHERE METRIC_ID = {}
-            '''.format(err, metric_id)
+            '''.format(message, metric_id)
             connection.connect(error_log)
         
             return False
