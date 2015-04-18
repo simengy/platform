@@ -57,8 +57,34 @@ class creation:
         
         try:
             connection.connect(query)
-        except:
+        except Exception, err:
+            print err
             return False
+
+        # Drop metatable
+        query = '''
+            SELECT value FROM parameter.METRIC_RESULTS
+            WHERE METRIC_ID = {}
+        '''.format(self.metric_id)
+        
+        try:
+            meta_name, _ = connection.connect(query)
+        except Exception, err:
+            print err
+            return False
+        print meta_name
+        for table in meta_name:
+            print table
+
+            query = '''DROP TABLE parameter.{};
+            '''.format(table[0])
+            
+            try:
+                connection.connect(query)
+            except Exception, err:
+                print err
+                return False
+
 
         query = '''
         DELETE FROM parameter.METRIC_RESULTS
@@ -66,12 +92,13 @@ class creation:
         '''.format(self.metric_id)
         
         try:
+            print query
             connection.connect(query)
-        except:
+        except Exception, err:
+            print err
             return False
 
         return True
-
 
 
 if __name__ == '__main__':
@@ -79,14 +106,30 @@ if __name__ == '__main__':
     METRIC_ID = 3
     METRIC_NAME = 'age of passenger'
     METRIC_DESCRIPTION = 'test for categorical features'
-    STARTDATE = '2011'
-    ENDDATE = '2012'
+    STARTDATE = None
+    ENDDATE = None
     PERIOD = '86400'
 
     parameters = ['datatype', 'query']
-    values = ['map', '''SELECT Sex, AVG(Age)
+    values = ['keyvalue', '''SELECT Sex, AVG(Age)
     FROM test.TITANIC
     group by 1
+            ''']
+
+
+    METRIC_ID = 6
+    METRIC_NAME = 'Demo test'
+    METRIC_DESCRIPTION = 'test'
+    STARTDATE = '2011-01-03'
+    ENDDATE = '2011-02-03'
+    PERIOD = '86400'
+
+
+    parameters = ['datatype', 'query']
+    values = ['scalar', '''SELECT COUNT(distinct projectid)
+    FROM test.DONATION
+    where donation_timestamp >= :STARTDATE
+    and donation_timestamp < :ENDDATE
             ''']
 
     cr = creation(METRIC_ID)

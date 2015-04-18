@@ -2,15 +2,16 @@ from datetime import datetime, timedelta
 from random import randrange
 
 from ..connection import connection
+from metadata import metadata
 import datatype
-import metadata
 
 N = 1000000
+
 
 def load(metric_id):
     
     query = '''
-    SELECT STARTDATE, ENDDATE, PERIOD_IN_SECOND from parameter.METRIC 
+    SELECT METRIC_NAME, STARTDATE, ENDDATE, PERIOD_IN_SECOND from parameter.METRIC 
     where METRIC_ID = {};'''.format(metric_id)
 
     parameter, _ = connection.connect(query)
@@ -68,7 +69,7 @@ def rollingwindows(metric_id, delta=100):
     
     fmt = '%Y-%m-%d %H:%M:%S'
 
-    start, end, period  = load(metric_id)
+    metric_name, start, end, period  = load(metric_id)
     sql = collect(metric_id)
 
     if sql is None:
@@ -90,8 +91,6 @@ def rollingwindows(metric_id, delta=100):
         
     print 'TIME delta = ', delta, period, end - start
 
-
-    metric = {}
     for i in xrange(delta):
         
         current = start + timedelta(seconds=period)
@@ -104,40 +103,32 @@ def rollingwindows(metric_id, delta=100):
         print i, datetime.strftime(current, fmt)
         print sql_new
         
-        try:
-            metric[current], _ = connection.connect(sql_new)
-        except Exception, err:
-            
-            message = err[1].replace('\'', '\'\'' )
-            
-            error_log = '''
-            UPDATE parameter.METRIC
-            set STATUS = 'ERROR: {}'
-            WHERE METRIC_ID = {}
-            '''.format(message, metric_id)
-            connection.connect(error_log)
-        
-            return False
- 
-        start = current
 
-    for key in sorted(metric):
-
+        # Calculation
         dtype = find_dtype(metric_id)
-        print 'RESULT:\n', metric[key], dtype
         
         if dtype is None:
             return False
         
-        for v in metric[key]:
+     
+        result_id = str(metric_id) + str(randrange(N))
+        meta_name = metric_name.replace(' ', '_') + '_' + result_id 
 
-            value = datatype.parser[dtype]().cast(v)
-            create(metric_id, datetime.strftime(key, fmt), value)
+        print result_id, meta_name
+        
+        create(metric_id, 
+                result_id, 
+                datetime.strftime(current, fmt),
+                dtype, 
+                meta_name,
+                sql_new)
+
+        start = current
 
     return True
 
 
-def create(metric_id, data_datetime, value):
+def create(metric_id, result_id, data_datetime, dtype, meta_name, sql_new):
     
     query = '''
     INSERT INTO parameter.METRIC_RESULTS 
@@ -150,18 +141,24 @@ def create(metric_id, data_datetime, value):
     );
     '''
     
-    result_id = str(metric_id) + str(randrange(N))
-
-    query = query.format(metric_id, result_id, data_datetime, value)
-    
+    # Create computation log
+    query = query.format(metric_id, result_id, data_datetime, meta_name)
     try:
         db = connection.connect(query)
-    
     except Exception, err:
-        
         print 'METRIC_ID = ', metric_id
         print 'DATA_DATETIME = ', data_datetime
         print 'ERROR MESSAGE = ', err
+    
+    # Create metadata for feature engineering
+    meta = metadata(metric_id, meta_name, sql_new)
+    try:
+        meta.dropTable()
+        meta.createTable()
+    except Exception, err:
+        print err
+        pass
+
 
 
 if __name__ == '__main__':
