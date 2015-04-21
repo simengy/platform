@@ -13,7 +13,7 @@ class metadata:
     def dropTable(self):
         
         drop_sql = '''
-        DROP TABLE IF EXISTS parameter.{};
+        DROP TABLE IF EXISTS metadata.{};
         '''.format(self.tablename)
         
         connection.connect(drop_sql)
@@ -21,7 +21,7 @@ class metadata:
     def deleteTable(self):
         
         del_sql = '''
-        DELETE FROM parameter.{};
+        DELETE FROM metadata.{};
         '''.format(self.tablename)
         
         connection.connect(del_sql)
@@ -29,7 +29,7 @@ class metadata:
     def createTable(self):
 
         create_sql = '''
-        CREATE TABLE IF NOT EXISTS parameter.{}
+        CREATE TABLE IF NOT EXISTS metadata.{}
         (
             {}
         );
@@ -41,7 +41,7 @@ class metadata:
         
         query = '''
         load data local infile '{}'
-        into table parameter.{}
+        into table metadata.{}
         fields terminated by ','
         enclosed by '\"'
         lines terminated by '\\n'

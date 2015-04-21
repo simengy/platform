@@ -63,7 +63,24 @@ def find_dtype(metric_id):
         connection.connect(error_log)
         
         return None
-    
+
+def max_resultID(metric_id):
+
+    query = '''
+    SELECT RESULT_ID from
+    parameter.METRIC_RESULTS
+    where METRIC_ID = {}
+    ORDER BY RESULT_ID DESC
+    LIMIT 1
+    '''.format(metric_id)
+
+    try:
+        dtype, _ = connection.connect(query)
+        return dtype[0][0]
+    except:
+        # The first record is supposed from 'READY'
+        return -1
+
 # TODO: datatype -- 
 def rollingwindows(metric_id, delta=100):
     
@@ -111,7 +128,7 @@ def rollingwindows(metric_id, delta=100):
             return False
         
      
-        result_id = str(metric_id) + str(randrange(N))
+        result_id = str(max_resultID(metric_id) + 1)
         meta_name = metric_name.replace(' ', '_') + '_' + result_id 
 
         print result_id, meta_name
@@ -163,9 +180,10 @@ def create(metric_id, result_id, data_datetime, dtype, meta_name, sql_new):
 
 if __name__ == '__main__':
 
-    metric_id = 3
+    metric_id = 6
     print load(metric_id)
     print 'sql:'
     print collect(metric_id)
+    print max_resultID(metric_id)
 
-    rollingwindows(metric_id)
+    #rollingwindows(metric_id)

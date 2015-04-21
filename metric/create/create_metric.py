@@ -72,11 +72,11 @@ class creation:
         except Exception, err:
             print err
             return False
-        print meta_name
+        
         for table in meta_name:
             print table
 
-            query = '''DROP TABLE parameter.{};
+            query = '''DROP TABLE metadata.{};
             '''.format(table[0])
             
             try:
@@ -111,26 +111,26 @@ if __name__ == '__main__':
     PERIOD = '86400'
 
     parameters = ['datatype', 'query']
-    values = ['keyvalue', '''SELECT Sex, AVG(Age)
+    values = ['keyvalue', '''SELECT *
     FROM test.TITANIC
-    group by 1
             ''']
 
+    
+    #METRIC_ID = 6
+    #METRIC_NAME = 'Demo test'
+    #METRIC_DESCRIPTION = 'test'
+    #STARTDATE = '2011-01-03'
+    #ENDDATE = '2011-02-03'
+    #PERIOD = '86400'
+    
 
-    METRIC_ID = 6
-    METRIC_NAME = 'Demo test'
-    METRIC_DESCRIPTION = 'test'
-    STARTDATE = '2011-01-03'
-    ENDDATE = '2011-02-03'
-    PERIOD = '86400'
-
-
-    parameters = ['datatype', 'query']
-    values = ['scalar', '''SELECT COUNT(distinct projectid)
-    FROM test.DONATION
-    where donation_timestamp >= :STARTDATE
-    and donation_timestamp < :ENDDATE
-            ''']
+    #parameters = ['datatype', 'query']
+    #values = ['scalar', '''SELECT COUNT(distinct projectid)
+    #FROM test.DONATION
+    #where donation_timestamp >= :STARTDATE
+    #and donation_timestamp < :ENDDATE
+    #        ''']
+    
 
     cr = creation(METRIC_ID)
     cr.remove_metric()
