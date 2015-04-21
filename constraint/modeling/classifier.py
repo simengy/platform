@@ -2,15 +2,24 @@ import os
 import pandas as pd
 import numpy as np
 
-from sklearn.tree import DescisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier
 
 from ..monitor import fetch
 from ..threshold import threshold
 
 
-def classfier(metric_name, **kwargs):
+def classifier(metric_name, **kwargs):
 
     metric1, colnames = fetch(metric_name)
-    metric = pd.DataFrame(np.array(metric1), columns = colnames)
+    
+    for key in metric1:
+        
+        metric = pd.DataFrame.from_records(metric1[key], columns=colnames)
 
-    print metric1
+    print metric
+
+if __name__ == '__main__':
+    
+    #classifier('Demo test')
+    classifier('age of passenger')
+

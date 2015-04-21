@@ -15,8 +15,11 @@ PLOT_DIR = 'plot'
 def temporal(metric_name):
 
     metric1, colnames = fetch(metric_name)
-    metric1 = pd.DataFrame(np.array(metric1), columns = colnames)
+        
+    metric1 = pd.DataFrame.from_dict(metric1, orient='index')
+    metric1.columns = colnames
     
+    print 'METRIC 1 = ', colnames
     print metric1
 
     # allocate the size of test data
@@ -32,8 +35,8 @@ def temporal(metric_name):
     forecast = importr('forecast')
     grdevices = importr('grDevices')
 
-    train = robjects.FloatVector(train['VALUE'].dropna())
-    test = robjects.FloatVector(test['VALUE'].dropna())
+    train = robjects.FloatVector(train[colnames[0]].dropna())
+    test = robjects.FloatVector(test[colnames[0]].dropna())
     order = robjects.IntVector((3,1,2))
     seasonal = robjects.ListVector({'order': robjects.IntVector((1,1,1)),
         'period': 7})
@@ -47,14 +50,14 @@ def temporal(metric_name):
 
     grdevices.jpeg(file='{}/{}/test.jpg'.format(PLOT_DIR, metric_name),
             width=800, height=600)
-    r.plot(pred, xlab='Days', ylab='Donation Amount')
+    r.plot(pred, xlab='Days', ylab=colnames[0])
     r.lines(x=r.seq(start,end), y=test, col='red', type='b', lwd=2)
     grdevices.dev_off()
     
     # ZOOM-IN
     grdevices.jpeg(file='{}/{}/test_zoomin.jpg'.format(PLOT_DIR, metric_name),
             width=800, height=600)
-    r.plot(pred, xlim=r.range(start,end), xlab='Days', ylab='Donation Amount')
+    r.plot(pred, xlim=r.range(start,end), xlab='Days', ylab=colnames[0])
     r.lines(x=r.seq(start,end), y=test, col='red', type='b', lwd=2)
     grdevices.dev_off()
 
@@ -75,5 +78,7 @@ if __name__ == '__main__':
 
     #temporal(metric_name = 'donation')
     #temporal(metric_name = 'donation_dup')
-    temporal(metric_name = 'donation_project')
+    #temporal(metric_name = 'donation_project')
+    temporal(metric_name = 'Demo test')
+    #temporal(metric_name = 'age of passenger')
 

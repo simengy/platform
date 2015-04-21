@@ -40,30 +40,6 @@ def collect(metric_id):
         
         return None
 
-def find_dtype(metric_id):
-
-    query = '''
-    SELECT value from
-    parameter.METRIC_CONFIG
-    where METRIC_ID = {}
-    and parameter = 'datatype'
-    '''.format(metric_id)
-
-    try:
-        dtype, _ = connection.connect(query)
-        return dtype[0][0]
-
-    except Exception, err:
-        print err
-        error_log = '''
-        UPDATE parameter.METRIC
-        set STATUS = 'ERROR: {}'
-        WHERE METRIC_ID = {}
-        '''.format(err, metric_id)
-        connection.connect(error_log)
-        
-        return None
-
 def max_resultID(metric_id):
 
     query = '''
@@ -75,8 +51,8 @@ def max_resultID(metric_id):
     '''.format(metric_id)
 
     try:
-        dtype, _ = connection.connect(query)
-        return dtype[0][0]
+        maxID, _ = connection.connect(query)
+        return maxID[0][0]
     except:
         # The first record is supposed from 'READY'
         return -1
@@ -120,14 +96,7 @@ def rollingwindows(metric_id, delta=100):
         print i, datetime.strftime(current, fmt)
         print sql_new
         
-
-        # Calculation
-        dtype = find_dtype(metric_id)
-        
-        if dtype is None:
-            return False
-        
-     
+        # Dynamically generating result_ID
         result_id = str(max_resultID(metric_id) + 1)
         meta_name = metric_name.replace(' ', '_') + '_' + result_id 
 
@@ -136,7 +105,6 @@ def rollingwindows(metric_id, delta=100):
         create(metric_id, 
                 result_id, 
                 datetime.strftime(current, fmt),
-                dtype, 
                 meta_name,
                 sql_new)
 
@@ -145,7 +113,7 @@ def rollingwindows(metric_id, delta=100):
     return True
 
 
-def create(metric_id, result_id, data_datetime, dtype, meta_name, sql_new):
+def create(metric_id, result_id, data_datetime, meta_name, sql_new):
     
     query = '''
     INSERT INTO parameter.METRIC_RESULTS 

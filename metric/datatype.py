@@ -6,6 +6,7 @@ class base:
         # TBD: how to compare the datatype and data?
         return
 
+
 class scalar(base):
 
     def __init__(self):
@@ -19,10 +20,9 @@ class scalar(base):
 
     def cast(self, data):
         if len(data) == 1:
-            return data[0]
+            return data[0][0]
         else:
             return None
-
 
 
 class keyvalue(base):
@@ -32,16 +32,14 @@ class keyvalue(base):
 
 
     def type(self, datatype):
-        types = ['map',]
+        types = ['keyvalue',]
         
         if datatype in types:
-            return 'map'
+            return 'keyvalue'
 
     def cast(self, data):
         try:
-            result = '.'.join(data[:-1])
-            result = result + '@' + str(data[-1])
-            return result
+            return data
         except:
            return None
         
