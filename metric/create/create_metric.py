@@ -132,6 +132,22 @@ if __name__ == '__main__':
     #        ''']
     
 
+    METRIC_ID = 7
+    METRIC_NAME = 'insurance fraud'
+    METRIC_DESCRIPTION = 'insurance fraud data'
+    STARTDATE = None
+    ENDDATE = None
+    PERIOD = 10000
+
+    parameters = ['datatype', 'query']
+    values = ['keyvalue', '''SELECT *,
+    CASE
+        WHEN Claim_Amount > 0 THEN 1
+        ELSE 0 END Fraud
+    FROM test.INSURANCE
+            ''']
+
+
     cr = creation(METRIC_ID)
     cr.remove_metric()
 
