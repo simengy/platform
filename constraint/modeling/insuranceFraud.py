@@ -41,11 +41,10 @@ def classifier(metric_name, **kwargs):
         'community_id'], axis = 1)
     vectorizer = DictVectorizer(sparse = False)
     train_new = vectorizer.fit_transform(train.T.to_dict().values())
-    
+    feature_name = vectorizer.feature_names_
     
     print train.shape
     print train_new.shape
-    feature_name = vectorizer.feature_names_
     print len(feature_name)
     
     # feature selection
@@ -58,14 +57,24 @@ def classifier(metric_name, **kwargs):
     #    print feature_name[i]
    
 
-    forest_2 = LogisticRegression(C=1500, tol=1e-10)
-    forest = DecisionTreeClassifier(max_depth=12, min_samples_leaf=1000, max_features=25)
-    #forest_2 = RandomForestClassifier(100, n_jobs = 16, max_depth=15)
-    #scores = cross_validation.cross_val_score(forest, train_new,
-    #        train_label, cv=3, scoring='roc_auc')
-    cross_val_curve(train_new, train_label, metric_name, 
-            n_folds=5, Base=forest, Link_Analysis=forest_2)
-    #print scores
+    #forest = LogisticRegression(C=1500, tol=1e-10)
+    #forest_2 = DecisionTreeClassifier(max_depth=12, min_samples_leaf=1000, max_features=25)
+    forest_2 = DecisionTreeClassifier(max_depth=10, max_features=30)
+  
+    #cross_val_curve(train_new, train_label, metric_name, 
+    #        n_folds=5, Base=forest, Link_Analysis=forest_2)
+
+    investigator(forest_2, train_new, train_label, metric_name, 
+            '{}/{}/roc_curve.png'.format(PLOT_DIR, metric_name))
+
+
+def investigator(model, train, label, metric_name, image):
+
+    a_train, a_test, b_train, b_test = cross_validation.train_test_split(train, label, test_size = 0.05)
+
+    proba = model.fit(a_train, b_train).predict_proba(a_test)
+    N = proba.shape[0]
+    threshold([0.0]*N , [0.75]*N, proba[:,1], metric_name, image, '75%')
 
 
 def feature_selection(model, train, label, feature_name, topN = 20):
@@ -84,14 +93,12 @@ def feature_selection(model, train, label, feature_name, topN = 20):
 
 def cross_val_curve(train, label, metric_name, n_folds=5, **kwargs):
     
-    #cv = cross_validation.StratifiedKFold(label, n_folds=n_folds)
     cv = cross_validation.KFold(label.shape[0], n_folds=n_folds, shuffle=True)
    
-    # Create dir
     if not os.path.exists('{}/{}'.format(PLOT_DIR, metric_name)):
         os.makedirs('{}/{}'.format(PLOT_DIR, metric_name))
     
-    
+    # Dynamically plot ROC for the specific model 
     for name, model in kwargs.iteritems():
 
         mean_tpr = 0.0
@@ -105,9 +112,8 @@ def cross_val_curve(train, label, metric_name, n_folds=5, **kwargs):
             mean_tpr[0] = 0.0
 
             #roc_auc = auc(fpr, tpr)
-            #plt.plot(fpr, tpr, lw=1, label='Link ROC fold %d (auc = %0.2f)'
-            #        % (i, roc_auc))
-
+            #plt.plot(fpr, tpr, lw=1, label='%s ROC fold %d (auc = %0.2f)'
+            #        % (name, i, roc_auc))
     
         mean_tpr /= len(cv)
         mean_tpr[-1] = 1.0

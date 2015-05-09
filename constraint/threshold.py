@@ -27,16 +27,17 @@ def threshold(ci_low, ci_high, test, metric_name, image, ci_level='95%'):
             message += '''
             
             ####################################################
-            Day {}:
+            ClaimID = {}:
             
-            observation value = {} 
+            fraud score = {} 
             is out of {} confidence interval:
             [{}, {}].
 
-            Please investigate the data!
+            Please investigate the transaction!
             ####################################################
             
-            '''.format(p, test[p], ci_level, ci_low[p], ci_high[p])
+            '''.format(p, int(test[p]*100), ci_level, 
+                    ci_low[p], ci_high[p])
 
     trigger = alert.alert(sender, receiver, pwd, message, image)
             
