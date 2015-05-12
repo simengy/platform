@@ -14,6 +14,7 @@ from sklearn.feature_extraction import DictVectorizer
 
 from ..monitor import fetch
 from ..threshold import threshold
+from ..messageTemplate import template
 
 PLOT_DIR = './plot'
 
@@ -29,7 +30,7 @@ def classifier(metric_name, **kwargs):
     
     # Some simple feture engineering
     train_label = train['Fraud']
-    
+    train_id = train['Household_ID'] 
     train = train.drop(['Blind_Submodel',
         'Blind_Model',
         'Household_ID', 'Row_ID', 'Vehicle',
@@ -57,24 +58,28 @@ def classifier(metric_name, **kwargs):
     #    print feature_name[i]
    
 
-    #forest = LogisticRegression(C=1500, tol=1e-10)
+    forest_2 = LogisticRegression(C=1500, tol=1e-10)
     #forest_2 = DecisionTreeClassifier(max_depth=12, min_samples_leaf=1000, max_features=25)
-    forest_2 = DecisionTreeClassifier(max_depth=10, max_features=30)
+    #forest_2 = DecisionTreeClassifier(max_depth=10, max_features=30)
   
     #cross_val_curve(train_new, train_label, metric_name, 
     #        n_folds=5, Base=forest, Link_Analysis=forest_2)
 
-    investigator(forest_2, train_new, train_label, metric_name, 
+    investigator(forest_2, train_new, train_label, train_id, metric_name, 
             '{}/{}/roc_curve.png'.format(PLOT_DIR, metric_name))
 
 
-def investigator(model, train, label, metric_name, image):
+def investigator(model, train, label, ID, metric_name, image):
 
-    a_train, a_test, b_train, b_test = cross_validation.train_test_split(train, label, test_size = 0.05)
+    a_train, a_test, b_train, b_test, c_train, c_test = cross_validation.train_test_split(train, label, ID, test_size = 0.1)
 
     proba = model.fit(a_train, b_train).predict_proba(a_test)
     N = proba.shape[0]
-    threshold([0.0]*N , [0.75]*N, proba[:,1], metric_name, image, '75%')
+   
+    print c_test.shape
+    tClass = template()
+    message = tClass.type_1(list(c_test), proba[:,1], [0.0]*N, [0.75]*N )
+    threshold(metric_name, image, message)
 
 
 def feature_selection(model, train, label, feature_name, topN = 20):

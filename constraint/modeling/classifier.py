@@ -22,4 +22,3 @@ if __name__ == '__main__':
     
     #classifier('Demo test')
     classifier('age of passenger')
-

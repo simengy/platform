@@ -8,6 +8,7 @@ from rpy2.robjects.packages import importr
 
 from ..monitor import fetch
 from ..threshold import threshold
+from ..messageTemplate import template
 
 PLOT_DIR = 'plot'
 
@@ -65,13 +66,15 @@ def temporal(metric_name):
     pred = list(pred)
     ci = '80%'
     
-    threshold(com.convert_robj(pred[4])[ci].as_matrix(),
+    tClass = template()
+    message = tClass.type_2(com.convert_robj(test),
+            com.convert_robj(pred[4])[ci].as_matrix(),
             com.convert_robj(pred[5])[ci].as_matrix(),
-            com.convert_robj(test),
-            metric_name = metric_name,
+            ci_level = ci)
+
+    threshold(metric_name = metric_name,
             image = '{}/{}/test.jpg'.format(PLOT_DIR, metric_name),
-            ci_level = ci
-            )
+            message = message)
     
 
 if __name__ == '__main__':
