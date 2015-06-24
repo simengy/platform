@@ -35,7 +35,10 @@ class metadata:
         );
         '''.format(self.tablename, self.query)
 
-        connection.connect(create_sql)
+        try:
+            connection.connect(create_sql)
+        except:
+            Exception('Cannot create tables!')
 
     def importCSV(self):
         

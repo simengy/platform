@@ -83,7 +83,8 @@ class creation:
                 connection.connect(query)
             except Exception, err:
                 print err
-                return False
+                pass
+                #return False
 
 
         query = '''
@@ -116,36 +117,36 @@ if __name__ == '__main__':
             ''']
 
     
-    #METRIC_ID = 6
-    #METRIC_NAME = 'Demo test'
-    #METRIC_DESCRIPTION = 'test'
-    #STARTDATE = '2011-01-03'
-    #ENDDATE = '2011-02-03'
-    #PERIOD = '86400'
+    METRIC_ID = 6
+    METRIC_NAME = 'Demo test'
+    METRIC_DESCRIPTION = 'test'
+    STARTDATE = '2011-01-03'
+    ENDDATE = '2011-02-03'
+    PERIOD = '86400'
     
-
-    #parameters = ['datatype', 'query']
-    #values = ['scalar', '''SELECT COUNT(distinct projectid)
-    #FROM test.DONATION
-    #where donation_timestamp >= :STARTDATE
-    #and donation_timestamp < :ENDDATE
-    #        ''']
-    
-
-    METRIC_ID = 7
-    METRIC_NAME = 'insurance fraud'
-    METRIC_DESCRIPTION = 'insurance fraud data'
-    STARTDATE = None
-    ENDDATE = None
-    PERIOD = 10000
 
     parameters = ['datatype', 'query']
-    values = ['keyvalue', '''SELECT *,
-    CASE
-        WHEN Claim_Amount > 0 THEN 1
-        ELSE 0 END Fraud
-    FROM test.INSURANCE
+    values = ['scalar', '''SELECT COUNT(distinct projectid)
+    FROM test.DONATION
+    where donation_timestamp >= :STARTDATE
+    and donation_timestamp < :ENDDATE
             ''']
+    
+
+#    METRIC_ID = 7
+#    METRIC_NAME = 'insurance fraud'
+#    METRIC_DESCRIPTION = 'insurance fraud data'
+#    STARTDATE = None
+#    ENDDATE = None
+#    PERIOD = 10000
+#
+#    parameters = ['datatype', 'query']
+#    values = ['keyvalue', '''SELECT *,
+#    CASE
+#        WHEN Claim_Amount > 0 THEN 1
+#        ELSE 0 END Fraud
+#    FROM test.INSURANCE
+#            ''']
 
 
     cr = creation(METRIC_ID)

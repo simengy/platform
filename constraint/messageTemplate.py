@@ -1,3 +1,5 @@
+import random
+
 class template:
 
     def type_1(self, IDs, scores, threshold_lower, threshold_upper):
@@ -8,9 +10,12 @@ class template:
         message = ''
         
         for p in xrange(N):
-            print p, scores[p], threshold_lower[p], threshold_upper[p]
-            if scores[p] < threshold_lower[p] or scores[p] > threshold_upper[p]:
             
+            assert threshold_lower[p] >= 0
+            
+            scores[p] = scores[p] * random.random()
+            if scores[p] > threshold_upper[p] and scores [p] < 1.0:
+                print p, IDs[p], scores[p], threshold_upper[p] 
                 message +=  '''
             
                 ####################################################
@@ -37,7 +42,7 @@ class template:
         
         for p in xrange(N):
             print p, obs[p], ci_lower[p], ci_upper[p]
-            if obs[p] < ci_lower[p] or obs[p] > ci_lower[p]:
+            if obs[p] < ci_lower[p] or obs[p] > ci_upper[p]:
 
                 message += '''
                 

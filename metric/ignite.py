@@ -67,4 +67,4 @@ if __name__ == '__main__':
 
     #print inquiry()
     #execute()
-    run(inquiry, interval=60)
+    run(inquiry, interval=30)

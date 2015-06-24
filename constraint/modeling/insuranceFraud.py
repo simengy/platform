@@ -58,11 +58,11 @@ def classifier(metric_name, **kwargs):
     #    print feature_name[i]
    
 
-    forest_2 = LogisticRegression(C=1500, tol=1e-10)
+    forest = LogisticRegression(C=1000, tol=1e-10)
     #forest_2 = DecisionTreeClassifier(max_depth=12, min_samples_leaf=1000, max_features=25)
-    #forest_2 = DecisionTreeClassifier(max_depth=10, max_features=30)
+    forest_2 = DecisionTreeClassifier(max_depth=12, max_features=30)
   
-    #cross_val_curve(train_new, train_label, metric_name, 
+    #cross_val_plot(train_new, train_label, metric_name, 
     #        n_folds=5, Base=forest, Link_Analysis=forest_2)
 
     investigator(forest_2, train_new, train_label, train_id, metric_name, 
@@ -71,7 +71,7 @@ def classifier(metric_name, **kwargs):
 
 def investigator(model, train, label, ID, metric_name, image):
 
-    a_train, a_test, b_train, b_test, c_train, c_test = cross_validation.train_test_split(train, label, ID, test_size = 0.1)
+    a_train, a_test, b_train, b_test, c_train, c_test = cross_validation.train_test_split(train, label, ID, test_size = 0.10)
 
     proba = model.fit(a_train, b_train).predict_proba(a_test)
     N = proba.shape[0]
@@ -96,7 +96,7 @@ def feature_selection(model, train, label, feature_name, topN = 20):
     return indices[:topN]
 
 
-def cross_val_curve(train, label, metric_name, n_folds=5, **kwargs):
+def cross_val_plot(train, label, metric_name, n_folds=5, **kwargs):
     
     cv = cross_validation.KFold(label.shape[0], n_folds=n_folds, shuffle=True)
    

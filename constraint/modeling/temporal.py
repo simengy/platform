@@ -64,7 +64,7 @@ def temporal(metric_name):
 
     # Threshold and alerting
     pred = list(pred)
-    ci = '80%'
+    ci = '95%'
     
     tClass = template()
     message = tClass.type_2(com.convert_robj(test),
